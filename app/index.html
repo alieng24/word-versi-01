@@ -1,0 +1,899 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>*,*::before,*::after{box-sizing:border-box}body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
+<title>Lembar</title>
+<link rel="stylesheet" href="../node_modules/@fontsource/ibm-plex-sans/400.css">
+<link rel="stylesheet" href="../node_modules/@fontsource/ibm-plex-sans/500.css">
+<link rel="stylesheet" href="../node_modules/@fontsource/ibm-plex-sans/600.css">
+<link rel="stylesheet" href="../node_modules/@fontsource/ibm-plex-mono/400.css">
+<link rel="stylesheet" href="../node_modules/@fontsource/source-serif-4/400.css">
+<link rel="stylesheet" href="../node_modules/@fontsource/source-serif-4/400-italic.css">
+<link rel="stylesheet" href="../node_modules/@fontsource/source-serif-4/600.css">
+<link rel="stylesheet" href="../node_modules/@fontsource/source-serif-4/700.css">
+<link rel="stylesheet" href="../node_modules/@fontsource/lora/400.css">
+<link rel="stylesheet" href="../node_modules/@fontsource/lora/400-italic.css">
+<link rel="stylesheet" href="../node_modules/@fontsource/lora/700.css">
+<link rel="stylesheet" href="../node_modules/@fontsource/roboto/400.css">
+<link rel="stylesheet" href="../node_modules/@fontsource/roboto/400-italic.css">
+<link rel="stylesheet" href="../node_modules/@fontsource/roboto/700.css">
+<link rel="stylesheet" href="../node_modules/@fontsource/merriweather/400.css">
+<link rel="stylesheet" href="../node_modules/@fontsource/merriweather/400-italic.css">
+<link rel="stylesheet" href="../node_modules/@fontsource/merriweather/700.css">
+<script src="../node_modules/mammoth/mammoth.browser.min.js"></script>
+<script src="../node_modules/html-docx-js/dist/html-docx.js"></script>
+<style>
+/* Layout: desk-grey workspace, a sheet of paper centred on it; ribbon above, status strip below — a one-screen app. */
+:root{
+  --bg:#e6e9ef; --chrome:#f8f9fb; --raised:#ffffff; --line:#d3d8e1; --line-soft:#e4e8ee;
+  --fg:#1b2130; --muted:#5a6477; --accent:#2c4ea3; --accent-fg:#ffffff; --accent-soft:#e3e9f8;
+  --paper:#ffffff; --ink:#1c1e23; --paper-edge:#c9ced8; --pagebreak:#b9c3d6;
+  --danger:#b3261e; --ok:#1f7a4d;
+  --ui:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --doc:"Source Serif 4",Georgia,"Times New Roman",serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  --shadow:0 1px 2px rgba(20,30,50,.08),0 8px 24px rgba(20,30,50,.10);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#12151b; --chrome:#1a1e26; --raised:#222833; --line:#2f3644; --line-soft:#272d38;
+  --fg:#e3e7ee; --muted:#97a1b3; --accent:#8ea8ee; --accent-fg:#0f1625; --accent-soft:#25304b;
+  --paper:#fbfbf9; --ink:#1c1e23; --paper-edge:#000000; --pagebreak:#b9c3d6;
+  --danger:#f2867e; --ok:#6fcf9b;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 30px rgba(0,0,0,.45); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#12151b; --chrome:#1a1e26; --raised:#222833; --line:#2f3644; --line-soft:#272d38;
+  --fg:#e3e7ee; --muted:#97a1b3; --accent:#8ea8ee; --accent-fg:#0f1625; --accent-soft:#25304b;
+  --paper:#fbfbf9; --ink:#1c1e23; --paper-edge:#000000; --pagebreak:#b9c3d6;
+  --danger:#f2867e; --ok:#6fcf9b;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 30px rgba(0,0,0,.45); color-scheme:dark}
+
+html,body{height:100%}
+body{background:var(--bg);color:var(--fg);font:14px/1.4 var(--ui);overflow:hidden}
+button,input,select{font:inherit;color:inherit}
+.app{height:100%;display:flex;flex-direction:column;min-width:0}
+
+/* Title bar */
+.titlebar{display:flex;align-items:center;gap:12px;padding:8px 16px;background:var(--chrome);border-bottom:1px solid var(--line-soft);min-width:0}
+.mark{display:flex;align-items:center;gap:8px;font-weight:600;letter-spacing:.01em;flex:none}
+.mark i{width:18px;height:22px;background:var(--accent);border-radius:2px;position:relative;display:block;clip-path:polygon(0 0,70% 0,100% 26%,100% 100%,0 100%)}
+.mark i::after{content:"";position:absolute;inset:7px 4px auto 4px;height:2px;background:var(--accent-fg);box-shadow:0 4px 0 var(--accent-fg),0 8px 0 var(--accent-fg);opacity:.85}
+.docname{flex:1;min-width:0;display:flex;align-items:center;gap:10px}
+#docTitle{min-width:0;width:100%;max-width:420px;border:1px solid transparent;background:transparent;border-radius:6px;padding:4px 8px;font-weight:500;text-overflow:ellipsis}
+#docTitle:hover{border-color:var(--line)}
+#docTitle:focus{outline:none;border-color:var(--accent);background:var(--raised)}
+.savestate{color:var(--muted);font-size:12px;white-space:nowrap;flex:none}
+.savestate b{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--ok);margin-right:6px;vertical-align:1px}
+.savestate.dirty b{background:var(--muted)}
+
+/* Tabs */
+.tabs{display:flex;gap:2px;padding:0 12px;background:var(--chrome);overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{border:0;background:none;padding:8px 12px 7px;border-bottom:2px solid transparent;color:var(--muted);cursor:pointer;white-space:nowrap;font-weight:500}
+.tab:hover{color:var(--fg)}
+.tab[aria-selected="true"]{color:var(--accent);border-bottom-color:var(--accent)}
+.tab.file{color:var(--accent-fg);background:var(--accent);border-radius:6px 6px 0 0;margin-right:4px}
+.tab.file[aria-selected="true"]{border-bottom-color:transparent;filter:brightness(1.08)}
+
+/* Ribbon */
+.ribbon{background:var(--chrome);border-bottom:1px solid var(--line);overflow-x:auto;overflow-y:hidden}
+.ribbon.collapsed{display:none}
+.panel{display:flex;align-items:stretch;padding:8px 12px 4px;gap:0;min-height:92px;width:max-content}
+.group{display:flex;flex-direction:column;justify-content:space-between;padding:0 12px;border-right:1px solid var(--line-soft);gap:4px}
+.group:last-child{border-right:0}
+.group > .cap{font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);text-align:center;padding-bottom:2px}
+.rows{display:flex;flex-direction:column;gap:4px}
+.row{display:flex;align-items:center;gap:2px}
+.big-row{display:flex;gap:4px;align-items:stretch}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:4px;height:30px;min-width:30px;padding:0 6px;border:1px solid transparent;border-radius:5px;background:none;cursor:pointer;color:var(--fg)}
+.btn:hover{background:var(--accent-soft)}
+.btn:focus-visible,.tab:focus-visible,.sel:focus-visible,.swatch:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.btn.on{background:var(--accent-soft);border-color:color-mix(in srgb,var(--accent) 45%,transparent);color:var(--accent)}
+.btn[disabled]{opacity:.38;cursor:default;background:none}
+.btn svg{width:18px;height:18px;flex:none}
+.btn.big{flex-direction:column;height:60px;min-width:58px;padding:4px 8px;font-size:12px;gap:3px}
+.btn.big svg{width:24px;height:24px}
+.btn .t{font-family:var(--doc);font-size:16px;line-height:1}
+.btn .dd{width:10px;height:10px;opacity:.6}
+.sep{width:1px;height:20px;background:var(--line-soft);margin:0 4px}
+.sel{height:30px;border:1px solid var(--line);border-radius:5px;background:var(--raised);padding:0 6px;cursor:pointer}
+.sel.font{width:150px}.sel.size{width:62px}.sel.style{width:132px}.sel.w{width:120px}
+.colorbtn{position:relative}
+.colorbtn .bar{position:absolute;left:7px;right:7px;bottom:4px;height:3px;border-radius:1px}
+
+/* Find bar */
+.findbar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:8px 16px;background:var(--raised);border-bottom:1px solid var(--line)}
+.findbar input[type=text]{height:30px;border:1px solid var(--line);border-radius:5px;background:var(--chrome);padding:0 8px;width:180px;max-width:100%}
+.findbar input[type=text]:focus{outline:2px solid var(--accent);outline-offset:-1px}
+.findbar .count{color:var(--muted);font-size:12px;min-width:64px;font-variant-numeric:tabular-nums}
+.findbar label{display:flex;align-items:center;gap:6px;color:var(--muted);font-size:13px}
+.pill{height:30px;padding:0 12px;border-radius:5px;border:1px solid var(--line);background:var(--chrome);cursor:pointer}
+.pill:hover{border-color:var(--accent)}
+.pill.primary{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
+
+/* Workspace + paper */
+.workspace{flex:1;overflow:auto;min-height:0;position:relative;padding-block:28px 48px}
+.zoomer{width:max-content;margin:0 auto;padding:0 16px}
+.page{
+  --pw:210mm; --ph:297mm; --mt:25.4mm; --mx:25.4mm; --lh:1.15;
+  width:var(--pw);min-height:var(--ph);box-sizing:border-box;padding:var(--mt) var(--mx);
+  background-color:var(--paper);color:var(--ink);box-shadow:var(--shadow);outline:1px solid var(--paper-edge);outline-offset:0;
+  font-family:var(--doc);font-size:12pt;line-height:var(--lh);
+  background-image:repeating-linear-gradient(to bottom,transparent 0,transparent calc(var(--ph) - 1px),var(--pagebreak) calc(var(--ph) - 1px),var(--pagebreak) var(--ph));
+  caret-color:var(--accent);word-wrap:break-word;
+}
+.page:focus{outline:1px solid var(--paper-edge)}
+.page p{margin:0 0 8pt}
+.page h1{font-size:20pt;line-height:1.2;margin:0 0 10pt;font-weight:700;color:#1d3470}
+.page h2{font-size:15pt;line-height:1.25;margin:14pt 0 6pt;font-weight:700;color:#1d3470}
+.page h3{font-size:12.5pt;margin:12pt 0 4pt;font-weight:700;color:#2f3a52}
+.page blockquote{margin:8pt 0 8pt 0;padding:2pt 0 2pt 14pt;border-left:3px solid #9fb0d6;color:#3b4152;font-style:italic}
+.page pre{font-family:var(--mono);font-size:10pt;background:#f1f3f6;padding:8pt 10pt;border-radius:3px;white-space:pre-wrap;margin:0 0 8pt}
+.page ul,.page ol{margin:0 0 8pt;padding-left:22pt}
+.page li{margin:0 0 2pt}
+.page table{border-collapse:collapse;width:100%;margin:4pt 0 10pt;font-size:inherit}
+.page td,.page th{border:1px solid #9aa3b2;padding:4pt 6pt;vertical-align:top;min-width:24px}
+.page th{background:#eef1f7;text-align:left;font-weight:600}
+.page img{max-width:100%;height:auto}
+.page img.picked{outline:2px solid var(--accent);outline-offset:2px}
+.page a{color:#2348a8;text-decoration:underline}
+.page hr{border:0;border-top:1px solid #8c94a3;margin:10pt 0}
+.page mark.hit{background:#ffe27a;color:inherit}
+.page ::selection{background:#c9d6f5}
+
+/* Status bar */
+.status{display:flex;align-items:center;gap:16px;padding:4px 16px;background:var(--chrome);border-top:1px solid var(--line);font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums;flex-wrap:wrap;row-gap:2px}
+.status .grow{flex:1}
+.zoomctl{display:flex;align-items:center;gap:6px}
+.zoomctl button{width:22px;height:22px;border:0;background:none;border-radius:4px;cursor:pointer;color:var(--fg)}
+.zoomctl button:hover{background:var(--accent-soft)}
+.zoomctl input{width:110px;accent-color:var(--accent)}
+.zoomctl output{min-width:40px;text-align:right}
+
+/* Popovers */
+.pop{position:fixed;z-index:50;background:var(--raised);border:1px solid var(--line);border-radius:8px;box-shadow:var(--shadow);padding:10px;min-width:180px;max-width:calc(100vw - 32px)}
+.pop h4{margin:0 0 8px;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.swatches{display:grid;grid-template-columns:repeat(8,22px);gap:4px}
+.swatch{width:22px;height:22px;border-radius:4px;border:1px solid rgba(0,0,0,.15);cursor:pointer;padding:0}
+.swatch.none{background:linear-gradient(135deg,transparent 45%,var(--danger) 45%,var(--danger) 55%,transparent 55%),var(--raised)}
+.grid{display:grid;grid-template-columns:repeat(10,18px);gap:3px}
+.grid span{width:18px;height:18px;border:1px solid var(--line);border-radius:2px;background:var(--chrome)}
+.grid span.on{background:var(--accent-soft);border-color:var(--accent)}
+.gridlabel{margin-top:8px;font-size:12px;color:var(--muted);text-align:center;font-variant-numeric:tabular-nums}
+.sym{display:grid;grid-template-columns:repeat(8,32px);gap:4px}
+.sym button{height:32px;border:1px solid var(--line-soft);border-radius:4px;background:var(--chrome);cursor:pointer;font-family:var(--doc);font-size:16px}
+.sym button:hover{border-color:var(--accent)}
+.field{display:flex;flex-direction:column;gap:4px;margin-bottom:8px}
+.field span{font-size:12px;color:var(--muted)}
+.field input{height:32px;border:1px solid var(--line);border-radius:5px;background:var(--chrome);padding:0 8px;width:260px;max-width:100%}
+.stats{display:grid;grid-template-columns:auto auto;gap:6px 24px;font-variant-numeric:tabular-nums}
+.stats dt{color:var(--muted)}.stats dd{margin:0;text-align:right;font-weight:600}
+.menu{display:flex;flex-direction:column;min-width:200px}
+.menu button{text-align:left;padding:8px 10px;border:0;background:none;border-radius:5px;cursor:pointer}
+.menu button:hover{background:var(--accent-soft)}
+
+/* Image bar */
+.imgbar{position:fixed;z-index:40;display:flex;gap:2px;background:var(--raised);border:1px solid var(--line);border-radius:7px;box-shadow:var(--shadow);padding:3px}
+.imgbar button{height:28px;padding:0 8px;border:0;background:none;border-radius:4px;cursor:pointer;font-size:12px}
+.imgbar button:hover{background:var(--accent-soft)}
+
+/* Modal + toast */
+.scrim{position:fixed;inset:0;background:rgba(10,14,22,.42);display:grid;place-items:center;z-index:60;padding:16px}
+.dialog{background:var(--raised);border-radius:10px;padding:20px;max-width:380px;width:100%;box-shadow:var(--shadow)}
+.dialog h3{margin:0 0 6px;font-size:16px}
+.dialog p{margin:0 0 16px;color:var(--muted)}
+.dialog .acts{display:flex;justify-content:flex-end;gap:8px}
+.toast{position:fixed;left:50%;bottom:calc(44px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:8px 14px;border-radius:6px;font-size:13px;z-index:70;max-width:calc(100vw - 32px)}
+
+@media print{
+  html,body{height:auto;overflow:visible;background:#fff}
+  .titlebar,.tabs,.ribbon,.findbar,.status,.pop,.imgbar,.toast,.scrim{display:none!important}
+  .app{display:block;height:auto}
+  .workspace{overflow:visible;padding:0}
+  .zoomer{zoom:1!important;padding:0;width:auto}
+  .page{width:auto;min-height:0;padding:0;box-shadow:none;outline:0;background-image:none}
+  .page table,.page img,.page blockquote{break-inside:avoid}
+  .page h1,.page h2,.page h3{break-after:avoid}
+}
+@media (max-width:640px){
+  .titlebar{padding:8px 12px}
+  .savestate span{display:none}
+  .status{gap:10px}
+  .zoomctl input{width:70px}
+  .hide-sm{display:none}
+}
+@media (prefers-reduced-motion:no-preference){.btn,.tab,.pill{transition:background .12s,border-color .12s,color .12s}}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <header class="titlebar">
+    <div class="mark"><i aria-hidden="true"></i>Lembar</div>
+    <div class="docname"><input id="docTitle" aria-label="Nama dokumen" value="Contoh — Notulen Rapat Koordinasi"></div>
+    <div class="savestate" id="saveState"><b></b><span id="saveText">Tersimpan otomatis</span></div>
+  </header>
+
+  <nav class="tabs" role="tablist" aria-label="Menu">
+    <button class="tab file" role="tab" data-tab="berkas" aria-selected="false" id="tabFile">Berkas</button>
+    <button class="tab" role="tab" data-tab="beranda" aria-selected="true">Beranda</button>
+    <button class="tab" role="tab" data-tab="sisipkan" aria-selected="false">Sisipkan</button>
+    <button class="tab" role="tab" data-tab="tataletak" aria-selected="false">Tata Letak</button>
+    <button class="tab" role="tab" data-tab="tinjau" aria-selected="false">Tinjau</button>
+  </nav>
+
+  <div class="ribbon" id="ribbon">
+    <!-- BERKAS -->
+    <div class="panel" data-panel="berkas" hidden>
+      <div class="group"><div class="big-row">
+        <button class="btn big" data-act="new"><svg data-i="newdoc"></svg>Baru</button>
+        <button class="btn big" data-act="open"><svg data-i="open"></svg>Buka</button>
+        <button class="btn big" data-act="save"><svg data-i="download"></svg>Simpan</button>
+      </div><div class="cap">Dokumen</div></div>
+      <div class="group"><div class="big-row">
+        <button class="btn big dl" data-act="save-docx"><svg data-i="download"></svg>Word .docx</button>
+        <button class="btn big dl" data-act="save-html"><svg data-i="download"></svg>Web .html</button>
+        <button class="btn big dl" data-act="save-txt"><svg data-i="download"></svg>Teks .txt</button>
+      </div><div class="cap">Simpan sebagai…</div></div>
+      <div class="group"><div class="big-row">
+        <button class="btn big" data-act="print"><svg data-i="print"></svg>Cetak</button>
+        <button class="btn big" data-act="pdf"><svg data-i="download"></svg>Ekspor PDF</button>
+      </div><div class="cap">Cetak</div></div>
+      <div class="group"><div class="big-row">
+        <button class="btn big" data-act="copy-text"><svg data-i="copy"></svg>Salin teks</button>
+        <button class="btn big" data-act="copy-html"><svg data-i="copy"></svg>Salin HTML</button>
+      </div><div class="cap">Bagikan</div></div>
+    </div>
+
+    <!-- BERANDA -->
+    <div class="panel" data-panel="beranda">
+      <div class="group"><div class="rows">
+        <div class="row"><button class="btn" data-cmd="undo" title="Urungkan (Ctrl+Z)"><svg data-i="undo"></svg></button><button class="btn" data-cmd="redo" title="Ulangi (Ctrl+Y)"><svg data-i="redo"></svg></button></div>
+        <div class="row"><button class="btn" data-act="clear" title="Hapus format"><svg data-i="clear"></svg></button><button class="btn" data-act="painter" title="Salin format" id="painterBtn"><svg data-i="brush"></svg></button></div>
+      </div><div class="cap">Riwayat</div></div>
+
+      <div class="group"><div class="rows">
+        <div class="row">
+          <select class="sel font" id="fontSel" aria-label="Jenis huruf">
+            <option value="Source Serif 4">Source Serif 4</option>
+            <option value="Times New Roman">Times New Roman</option>
+            <option value="Arial">Arial</option>
+            <option value="Calibri">Calibri</option>
+            <option value="Lora">Lora</option>
+            <option value="Merriweather">Merriweather</option>
+            <option value="Roboto">Roboto</option>
+            <option value="IBM Plex Sans">IBM Plex Sans</option>
+            <option value="Courier New">Courier New</option>
+          </select>
+          <select class="sel size" id="sizeSel" aria-label="Ukuran huruf"></select>
+          <button class="btn" data-act="grow" title="Perbesar huruf"><span class="t">A<sup style="font-size:9px">+</sup></span></button>
+          <button class="btn" data-act="shrink" title="Perkecil huruf"><span class="t" style="font-size:13px">A<sup style="font-size:9px">−</sup></span></button>
+        </div>
+        <div class="row">
+          <button class="btn" data-cmd="bold" title="Tebal (Ctrl+B)"><span class="t" style="font-weight:700">B</span></button>
+          <button class="btn" data-cmd="italic" title="Miring (Ctrl+I)"><span class="t" style="font-style:italic">I</span></button>
+          <button class="btn" data-cmd="underline" title="Garis bawah (Ctrl+U)"><span class="t" style="text-decoration:underline">U</span></button>
+          <button class="btn" data-cmd="strikeThrough" title="Coret"><span class="t" style="text-decoration:line-through">ab</span></button>
+          <button class="btn" data-cmd="subscript" title="Subskrip"><span class="t" style="font-size:14px">x<sub style="font-size:9px">2</sub></span></button>
+          <button class="btn" data-cmd="superscript" title="Superskrip"><span class="t" style="font-size:14px">x<sup style="font-size:9px">2</sup></span></button>
+          <span class="sep"></span>
+          <button class="btn colorbtn" data-pop="fore" title="Warna teks"><span class="t">A</span><span class="bar" id="foreBar" style="background:#c0392b"></span><svg class="dd" data-i="chev"></svg></button>
+          <button class="btn colorbtn" data-pop="hilite" title="Warna sorot"><svg data-i="marker"></svg><span class="bar" id="hiliteBar" style="background:#ffe066"></span><svg class="dd" data-i="chev"></svg></button>
+        </div>
+      </div><div class="cap">Huruf</div></div>
+
+      <div class="group"><div class="rows">
+        <div class="row">
+          <button class="btn" data-cmd="insertUnorderedList" title="Poin"><svg data-i="ul"></svg></button>
+          <button class="btn" data-cmd="insertOrderedList" title="Penomoran"><svg data-i="ol"></svg></button>
+          <span class="sep"></span>
+          <button class="btn" data-cmd="outdent" title="Kurangi indentasi"><svg data-i="outdent"></svg></button>
+          <button class="btn" data-cmd="indent" title="Tambah indentasi"><svg data-i="indent"></svg></button>
+          <span class="sep"></span>
+          <select class="sel w" id="lineSel" aria-label="Spasi baris" title="Spasi baris">
+            <option value="1">Spasi 1,0</option><option value="1.15" selected>Spasi 1,15</option><option value="1.5">Spasi 1,5</option><option value="2">Spasi 2,0</option>
+          </select>
+        </div>
+        <div class="row">
+          <button class="btn" data-cmd="justifyLeft" title="Rata kiri"><svg data-i="al"></svg></button>
+          <button class="btn" data-cmd="justifyCenter" title="Rata tengah"><svg data-i="ac"></svg></button>
+          <button class="btn" data-cmd="justifyRight" title="Rata kanan"><svg data-i="ar"></svg></button>
+          <button class="btn" data-cmd="justifyFull" title="Rata kiri-kanan"><svg data-i="aj"></svg></button>
+        </div>
+      </div><div class="cap">Paragraf</div></div>
+
+      <div class="group"><div class="rows">
+        <div class="row"><select class="sel style" id="styleSel" aria-label="Gaya paragraf">
+          <option value="p">Normal</option><option value="h1">Judul 1</option><option value="h2">Judul 2</option><option value="h3">Judul 3</option><option value="blockquote">Kutipan</option><option value="pre">Kode</option>
+        </select></div>
+        <div class="row"><button class="btn" data-act="find" title="Cari & ganti (Ctrl+F)"><svg data-i="search"></svg>Cari</button></div>
+      </div><div class="cap">Gaya</div></div>
+    </div>
+
+    <!-- SISIPKAN -->
+    <div class="panel" data-panel="sisipkan" hidden>
+      <div class="group"><div class="big-row">
+        <button class="btn big" data-pop="table"><svg data-i="table"></svg>Tabel</button>
+      </div><div class="cap">Tabel</div></div>
+      <div class="group"><div class="rows">
+        <div class="row">
+          <button class="btn tbl" data-act="row-above" title="Sisipkan baris di atas" disabled><svg data-i="rowup"></svg></button>
+          <button class="btn tbl" data-act="row-below" title="Sisipkan baris di bawah" disabled><svg data-i="rowdown"></svg></button>
+          <button class="btn tbl" data-act="col-left" title="Sisipkan kolom di kiri" disabled><svg data-i="colleft"></svg></button>
+          <button class="btn tbl" data-act="col-right" title="Sisipkan kolom di kanan" disabled><svg data-i="colright"></svg></button>
+        </div>
+        <div class="row">
+          <button class="btn tbl" data-act="del-row" disabled>Hapus baris</button>
+          <button class="btn tbl" data-act="del-col" disabled>Hapus kolom</button>
+          <button class="btn tbl" data-act="del-table" disabled>Hapus tabel</button>
+        </div>
+      </div><div class="cap">Ubah tabel</div></div>
+      <div class="group"><div class="big-row">
+        <button class="btn big" data-act="image"><svg data-i="image"></svg>Gambar</button>
+        <button class="btn big" data-pop="link"><svg data-i="link"></svg>Tautan</button>
+        <button class="btn big" data-act="hr"><svg data-i="hr"></svg>Garis</button>
+        <button class="btn big" data-act="date"><svg data-i="cal"></svg>Tanggal</button>
+        <button class="btn big" data-pop="symbol"><svg data-i="omega"></svg>Simbol</button>
+      </div><div class="cap">Objek</div></div>
+    </div>
+
+    <!-- TATA LETAK -->
+    <div class="panel" data-panel="tataletak" hidden>
+      <div class="group"><div class="rows">
+        <div class="row"><svg data-i="paper" style="width:18px;height:18px;color:var(--muted)"></svg>
+          <select class="sel w" id="paperSel" aria-label="Ukuran kertas" style="width:170px">
+            <option value="210x297">A4 (21 × 29,7 cm)</option>
+            <option value="215x330">F4 / Folio (21,5 × 33 cm)</option>
+            <option value="216x279">Letter (21,6 × 27,9 cm)</option>
+            <option value="216x356">Legal (21,6 × 35,6 cm)</option>
+            <option value="148x210">A5 (14,8 × 21 cm)</option>
+          </select></div>
+        <div class="row"><svg data-i="orient" style="width:18px;height:18px;color:var(--muted)"></svg>
+          <select class="sel w" id="orientSel" aria-label="Orientasi" style="width:170px"><option value="p">Potret</option><option value="l">Lanskap</option></select></div>
+      </div><div class="cap">Kertas</div></div>
+      <div class="group"><div class="rows">
+        <div class="row"><svg data-i="margin" style="width:18px;height:18px;color:var(--muted)"></svg>
+          <select class="sel w" id="marginSel" aria-label="Margin" style="width:190px">
+            <option value="25.4,25.4">Normal (2,54 cm)</option>
+            <option value="12.7,12.7">Sempit (1,27 cm)</option>
+            <option value="25.4,19.1">Sedang (2,54 / 1,91 cm)</option>
+            <option value="25.4,50.8">Lebar (2,54 / 5,08 cm)</option>
+            <option value="30,30">Skripsi (3 cm semua sisi)</option>
+          </select></div>
+        <div class="row" style="color:var(--muted);font-size:12px;padding-left:4px">Atas-bawah / kiri-kanan</div>
+      </div><div class="cap">Margin</div></div>
+      <div class="group"><div class="rows">
+        <div class="row"><select class="sel w" id="lineSel2" aria-label="Spasi baris dokumen">
+          <option value="1">Spasi 1,0</option><option value="1.15" selected>Spasi 1,15</option><option value="1.5">Spasi 1,5</option><option value="2">Spasi 2,0</option>
+        </select></div>
+        <div class="row" style="color:var(--muted);font-size:12px;padding-left:4px">Berlaku untuk seluruh dokumen</div>
+      </div><div class="cap">Spasi</div></div>
+    </div>
+
+    <!-- TINJAU -->
+    <div class="panel" data-panel="tinjau" hidden>
+      <div class="group"><div class="big-row">
+        <button class="btn big" data-act="find"><svg data-i="search"></svg>Cari &amp; ganti</button>
+        <button class="btn big" data-pop="stats"><svg data-i="stats"></svg>Statistik</button>
+      </div><div class="cap">Periksa</div></div>
+      <div class="group"><div class="big-row">
+        <button class="btn big on" data-act="spell" id="spellBtn"><svg data-i="spell"></svg>Ejaan</button>
+        <button class="btn big" data-act="focus"><svg data-i="focus"></svg>Mode fokus</button>
+      </div><div class="cap">Tampilan</div></div>
+    </div>
+  </div>
+
+  <div class="findbar" id="findbar" hidden>
+    <input type="text" id="findIn" placeholder="Cari…" aria-label="Cari">
+    <span class="count" id="findCount"></span>
+    <button class="pill" data-act="find-prev">Sebelumnya</button>
+    <button class="pill" data-act="find-next">Berikutnya</button>
+    <input type="text" id="replIn" placeholder="Ganti dengan…" aria-label="Ganti dengan">
+    <button class="pill" data-act="replace-one">Ganti</button>
+    <button class="pill primary" data-act="replace-all">Ganti semua</button>
+    <label><input type="checkbox" id="caseChk"> Cocokkan huruf besar/kecil</label>
+    <button class="btn" data-act="find-close" title="Tutup" aria-label="Tutup pencarian"><svg data-i="x"></svg></button>
+  </div>
+
+  <main class="workspace" id="ws">
+    <div class="zoomer" id="zoomer">
+      <article class="page" id="page" contenteditable="true" spellcheck="true" lang="id" aria-label="Isi dokumen"></article>
+    </div>
+  </main>
+
+  <footer class="status">
+    <span id="stPage">Halaman 1 dari 1</span>
+    <span id="stWords">0 kata</span>
+    <span class="hide-sm">Bahasa Indonesia</span>
+    <span class="grow"></span>
+    <span class="hide-sm" id="stPaper">A4 · Potret</span>
+    <div class="zoomctl">
+      <button data-act="zoom-out" aria-label="Perkecil tampilan">−</button>
+      <input type="range" id="zoomIn" min="40" max="200" step="10" value="100" aria-label="Zoom">
+      <button data-act="zoom-in" aria-label="Perbesar tampilan">+</button>
+      <output id="zoomOut">100%</output>
+    </div>
+  </footer>
+</div>
+
+<input type="file" id="imgFile" accept="image/*" hidden>
+<input type="file" id="docFile" accept=".docx,.html,.htm,.txt,.md" hidden>
+<div class="pop" id="pop" hidden></div>
+<div class="imgbar" id="imgbar" hidden>
+  <button data-img="25">25%</button><button data-img="50">50%</button><button data-img="100">100%</button>
+  <button data-img="left">Kiri</button><button data-img="center">Tengah</button><button data-img="right">Kanan</button>
+  <button data-img="del">Hapus</button>
+</div>
+<div class="scrim" id="confirm" hidden>
+  <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="cfTitle">
+    <h3 id="cfTitle">Buat dokumen baru?</h3>
+    <p id="cfText">Isi dokumen saat ini akan dihapus. Simpan dulu sebagai .docx jika masih diperlukan.</p>
+    <div class="acts"><button class="pill" id="cfNo">Batal</button><button class="pill primary" id="cfYes">Buat baru</button></div>
+  </div>
+</div>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+(() => {
+const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+const page = $('#page'), ws = $('#ws'), zoomer = $('#zoomer'), pop = $('#pop');
+
+/* ---------- Icons ---------- */
+const I = {
+  undo:'<path d="M9 14 4 9l5-5"/><path d="M4 9h11a5 5 0 0 1 0 10h-3"/>',
+  redo:'<path d="m15 14 5-5-5-5"/><path d="M20 9H9a5 5 0 0 0 0 10h3"/>',
+  clear:'<path d="M6 5h12M12 5 9 19M14 14l6 6M20 14l-6 6"/>',
+  brush:'<path d="M18 3 9 12l3 3 9-9-3-3z"/><path d="M9 12c-3 0-5 2-5 5 0 1.5-1 2.5-2 3 4 1 9 0 10-5"/>',
+  al:'<path d="M4 6h16M4 10h10M4 14h16M4 18h10"/>', ac:'<path d="M4 6h16M7 10h10M4 14h16M7 18h10"/>',
+  ar:'<path d="M4 6h16M10 10h10M4 14h16M10 18h10"/>', aj:'<path d="M4 6h16M4 10h16M4 14h16M4 18h16"/>',
+  ul:'<circle cx="5" cy="7" r="1.2" fill="currentColor"/><circle cx="5" cy="12" r="1.2" fill="currentColor"/><circle cx="5" cy="17" r="1.2" fill="currentColor"/><path d="M9 7h11M9 12h11M9 17h11"/>',
+  ol:'<path d="M4 5h1.5v4M4 9h3M3.6 13.6c.4-.8 2.6-.9 2.6.4 0 1-2.6 1.8-2.6 3h2.8M10 7h10M10 12h10M10 17h10"/>',
+  indent:'<path d="M4 5h16M11 10h9M11 14h9M4 19h16M4 9l3 3-3 3"/>', outdent:'<path d="M4 5h16M11 10h9M11 14h9M4 19h16M7 9l-3 3 3 3"/>',
+  marker:'<path d="m15 5 4 4-8 8H7v-4z"/><path d="m13 7 4 4"/>',
+  search:'<circle cx="11" cy="11" r="6"/><path d="m20 20-4.5-4.5"/>',
+  table:'<rect x="3" y="4" width="18" height="16" rx="1.5"/><path d="M3 10h18M3 15h18M9 4v16M15 4v16"/>',
+  image:'<rect x="3" y="4" width="18" height="16" rx="1.5"/><circle cx="9" cy="10" r="2"/><path d="m21 16-5-5L5 20"/>',
+  link:'<path d="M10 14a4 4 0 0 0 5.66 0l3-3a4 4 0 0 0-5.66-5.66l-1 1"/><path d="M14 10a4 4 0 0 0-5.66 0l-3 3a4 4 0 0 0 5.66 5.66l1-1"/>',
+  hr:'<path d="M3 12h18"/><path d="M8 7h8M8 17h8" opacity=".45"/>',
+  cal:'<rect x="4" y="5" width="16" height="15" rx="1.5"/><path d="M4 10h16M9 3v4M15 3v4"/>',
+  omega:'<path d="M5 19h4v-2a6 6 0 1 1 6 0v2h4"/>',
+  stats:'<path d="M5 20V11M12 20V4M19 20v-7"/>',
+  spell:'<path d="m3 16 3.5-9 3.5 9M4.3 13h4.4M13 15l2.5 2.5L21 11"/>',
+  focus:'<path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/>',
+  newdoc:'<path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4M12 11v6M9 14h6"/>',
+  open:'<path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',
+  download:'<path d="M12 4v11M7 10l5 5 5-5M5 20h14"/>',
+  copy:'<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/>',
+  paper:'<path d="M6 3h12v18H6z"/>', orient:'<rect x="7" y="3" width="10" height="14" rx="1"/><path d="M4 21h14" opacity=".5"/>',
+  margin:'<rect x="4" y="3" width="16" height="18" rx="1"/><rect x="7.5" y="6.5" width="9" height="11" stroke-dasharray="2 2"/>',
+  rowup:'<rect x="3" y="12" width="18" height="8" rx="1"/><path d="M12 3v6M9 6h6"/>', rowdown:'<rect x="3" y="4" width="18" height="8" rx="1"/><path d="M12 15v6M9 18h6"/>',
+  colleft:'<rect x="12" y="3" width="8" height="18" rx="1"/><path d="M3 12h6M6 9v6"/>', colright:'<rect x="4" y="3" width="8" height="18" rx="1"/><path d="M15 12h6M18 9v6"/>',
+  print:'<path d="M7 9V3h10v6"/><rect x="3" y="9" width="18" height="8" rx="1.5"/><path d="M7 14h10v7H7z"/>',
+  chev:'<path d="m6 9 6 6 6-6"/>', x:'<path d="M6 6l12 12M18 6 6 18"/>'
+};
+$$('svg[data-i]').forEach(s => { s.setAttribute('viewBox','0 0 24 24'); s.setAttribute('fill','none'); s.setAttribute('stroke','currentColor'); s.setAttribute('stroke-width','1.8'); s.setAttribute('stroke-linecap','round'); s.setAttribute('stroke-linejoin','round'); s.setAttribute('aria-hidden','true'); s.innerHTML = I[s.dataset.i] || ''; });
+
+/* ---------- Storage ---------- */
+const KEY = 'lembar.desktop.doc.v1';
+const store = { get(){ try { return JSON.parse(localStorage.getItem(KEY) || 'null'); } catch { return null; } },
+                set(v){ try { localStorage.setItem(KEY, JSON.stringify(v)); return true; } catch { return false; } } };
+
+/* ---------- Sample ---------- */
+const today = new Date();
+const tgl = d => d.toLocaleDateString('id-ID', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+const SAMPLE = `
+<h1>Notulen Rapat Koordinasi Proyek</h1>
+<p><span style="color:#5a6477;">Nomor: 014/NR/X/2026 &nbsp;·&nbsp; Contoh dokumen — silakan hapus dan mulai menulis</span></p>
+<table><tbody>
+<tr><th style="width:28%">Hari, tanggal</th><td>${tgl(today)}</td></tr>
+<tr><th>Tempat</th><td>Ruang Rapat Lantai 3</td></tr>
+<tr><th>Pimpinan rapat</th><td>Kepala Divisi Produk</td></tr>
+<tr><th>Peserta</th><td>Tim Produk, Tim Teknik, Tim Pemasaran</td></tr>
+</tbody></table>
+<h2>1. Pembahasan</h2>
+<p>Rapat membahas kemajuan peluncuran aplikasi versi 2.0 yang dijadwalkan pada akhir triwulan IV. Secara umum pengembangan berjalan sesuai rencana, dengan beberapa catatan berikut:</p>
+<ul>
+<li>Fitur <b>pembayaran QRIS</b> sudah lolos uji internal dan menunggu verifikasi mitra.</li>
+<li>Uji coba pengguna di Jakarta dan Surabaya menunjukkan <i>waktu muat</i> halaman beranda perlu dipercepat.</li>
+<li>Materi kampanye peluncuran perlu disesuaikan dengan pedoman merek terbaru.</li>
+</ul>
+<h2>2. Tindak Lanjut</h2>
+<table><tbody>
+<tr><th style="width:8%">No.</th><th>Tindak lanjut</th><th style="width:24%">Penanggung jawab</th><th style="width:20%">Tenggat</th></tr>
+<tr><td>1</td><td>Menyelesaikan verifikasi QRIS dengan mitra bank</td><td>Tim Teknik</td><td>23 Oktober 2026</td></tr>
+<tr><td>2</td><td>Optimasi waktu muat halaman beranda di bawah 2 detik</td><td>Tim Teknik</td><td>30 Oktober 2026</td></tr>
+<tr><td>3</td><td>Revisi materi kampanye sesuai pedoman merek</td><td>Tim Pemasaran</td><td>6 November 2026</td></tr>
+</tbody></table>
+<blockquote>Rapat berikutnya dijadwalkan dua minggu lagi untuk meninjau hasil tindak lanjut di atas.</blockquote>
+<p style="text-align:right;">Jakarta, ${today.toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'})}<br>Notulis,<br><br><br><b>(…………………………)</b></p>`;
+
+/* ---------- Layout state ---------- */
+let layout = { paper:'210x297', orient:'p', margin:'25.4,25.4', lh:'1.15' };
+function applyLayout(){
+  let [w,h] = layout.paper.split('x').map(Number); if (layout.orient === 'l') [w,h] = [h,w];
+  const [mt,mx] = layout.margin.split(',');
+  page.style.setProperty('--pw', w+'mm'); page.style.setProperty('--ph', h+'mm');
+  page.style.setProperty('--mt', mt+'mm'); page.style.setProperty('--mx', mx+'mm'); page.style.setProperty('--lh', layout.lh);
+  $('#paperSel').value = layout.paper; $('#orientSel').value = layout.orient; $('#marginSel').value = layout.margin;
+  $('#lineSel').value = layout.lh; $('#lineSel2').value = layout.lh;
+  const name = $('#paperSel').selectedOptions[0].text.split(' (')[0];
+  $('#stPaper').textContent = `${name} · ${layout.orient === 'p' ? 'Potret' : 'Lanskap'}`;
+  updateStats();
+}
+['paperSel','orientSel','marginSel'].forEach((id,i) => $('#'+id).addEventListener('change', e => { layout[['paper','orient','margin'][i]] = e.target.value; applyLayout(); dirty(); }));
+['lineSel','lineSel2'].forEach(id => $('#'+id).addEventListener('change', e => { layout.lh = e.target.value; applyLayout(); dirty(); }));
+
+/* ---------- Load ---------- */
+const saved = store.get();
+if (saved && saved.html != null) { page.innerHTML = saved.html; $('#docTitle').value = saved.title || 'Dokumen tanpa judul'; if (saved.layout) layout = Object.assign(layout, saved.layout); }
+else page.innerHTML = SAMPLE;
+document.execCommand('defaultParagraphSeparator', false, 'p');
+applyLayout();
+
+/* ---------- Save / dirty ---------- */
+let saveTimer;
+function dirty(){ $('#saveState').classList.add('dirty'); $('#saveText').textContent = 'Menyimpan…'; clearTimeout(saveTimer); saveTimer = setTimeout(saveNow, 700); updateStats(); }
+function saveNow(){
+  clearTimeout(saveTimer);
+  const ok = store.set({ title: $('#docTitle').value, html: page.innerHTML, layout });
+  $('#saveState').classList.toggle('dirty', !ok);
+  $('#saveText').textContent = ok ? 'Tersimpan otomatis' : 'Draf tidak bisa disimpan di peramban ini';
+}
+page.addEventListener('input', dirty);
+$('#docTitle').addEventListener('input', dirty);
+
+/* ---------- Selection ---------- */
+let savedRange = null;
+document.addEventListener('selectionchange', () => {
+  const s = getSelection(); if (!s.rangeCount) return;
+  const r = s.getRangeAt(0);
+  if (page.contains(r.commonAncestorContainer)) { savedRange = r.cloneRange(); refreshState(); }
+});
+function restore(){
+  page.focus({ preventScroll:true });
+  if (savedRange) { const s = getSelection(); s.removeAllRanges(); s.addRange(savedRange); }
+}
+function exec(cmd, val=null, css=true){ restore(); document.execCommand('styleWithCSS', false, css); document.execCommand(cmd, false, val); dirty(); refreshState(); }
+
+/* keep selection when pressing ribbon buttons */
+$$('.ribbon .btn, .findbar .pill, .imgbar button').forEach(b => b.addEventListener('mousedown', e => e.preventDefault()));
+
+/* ---------- Tabs ---------- */
+let focusMode = false;
+$$('.tab').forEach(t => t.addEventListener('click', () => {
+  if (focusMode) toggleFocus();
+  $$('.tab').forEach(x => x.setAttribute('aria-selected', x === t));
+  $$('.panel').forEach(p => p.hidden = p.dataset.panel !== t.dataset.tab);
+  closePop();
+}));
+
+/* ---------- Simple commands ---------- */
+$$('[data-cmd]').forEach(b => b.addEventListener('click', () => exec(b.dataset.cmd)));
+
+/* font + size */
+const SIZES = [8,9,10,10.5,11,12,14,16,18,20,24,28,32,36,48,60,72];
+$('#sizeSel').innerHTML = SIZES.map(s => `<option value="${s}">${String(s).replace('.',',')}</option>`).join('');
+$('#fontSel').addEventListener('change', e => exec('fontName', e.target.value));
+$('#sizeSel').addEventListener('change', e => setSize(parseFloat(e.target.value)));
+function setSize(pt){
+  restore();
+  const s = getSelection(); if (!s.rangeCount || s.isCollapsed) { toast('Pilih teks dulu untuk mengubah ukuran huruf'); return; }
+  document.execCommand('styleWithCSS', false, false);
+  document.execCommand('fontSize', false, '7');
+  const fonts = [...page.querySelectorAll('font[size="7"]')], spans = [];
+  fonts.forEach(f => { const sp = document.createElement('span'); sp.style.fontSize = pt + 'pt'; while (f.firstChild) sp.appendChild(f.firstChild); f.replaceWith(sp); spans.push(sp);
+    sp.querySelectorAll('span[style*="font-size"]').forEach(inner => inner.style.fontSize = ''); });
+  if (spans.length) { const r = document.createRange(); r.setStartBefore(spans[0]); r.setEndAfter(spans[spans.length-1]); s.removeAllRanges(); s.addRange(r); savedRange = r.cloneRange(); }
+  dirty(); refreshState();
+}
+function currentPt(){ const n = anchorEl(); return n ? Math.round(parseFloat(getComputedStyle(n).fontSize) * 0.75 * 2) / 2 : 12; }
+function stepSize(dir){ const cur = currentPt(); const next = dir > 0 ? SIZES.find(s => s > cur) || 72 : [...SIZES].reverse().find(s => s < cur) || 8; setSize(next); }
+
+/* style block */
+$('#styleSel').addEventListener('change', e => exec('formatBlock', '<' + e.target.value + '>'));
+
+/* ---------- State refresh ---------- */
+function anchorEl(){ const r = savedRange; if (!r) return null; let n = r.startContainer; if (n.nodeType === 3) n = n.parentNode; return page.contains(n) ? n : null; }
+function refreshState(){
+  ['bold','italic','underline','strikeThrough','subscript','superscript','insertUnorderedList','insertOrderedList','justifyLeft','justifyCenter','justifyRight','justifyFull']
+    .forEach(c => { let on = false; try { on = document.queryCommandState(c); } catch {} $$(`[data-cmd="${c}"]`).forEach(b => b.classList.toggle('on', on)); });
+  const n = anchorEl(); if (!n) return;
+  const cs = getComputedStyle(n);
+  const fam = cs.fontFamily.split(',')[0].replace(/["']/g,'').trim();
+  const fs = $('#fontSel'); if (![...fs.options].some(o => o.value === fam)) { const o = new Option(fam, fam); fs.add(o); } fs.value = fam;
+  const pt = currentPt(); const ss = $('#sizeSel'); if (![...ss.options].some(o => +o.value === pt)) { ss.add(new Option(String(pt).replace('.',','), pt)); } ss.value = pt;
+  const blk = n.closest('h1,h2,h3,blockquote,pre,p,li,td,th,div'); const tag = blk ? blk.tagName.toLowerCase() : 'p';
+  $('#styleSel').value = ['h1','h2','h3','blockquote','pre'].includes(tag) ? tag : 'p';
+  const inTable = !!n.closest('td,th'); $$('.tbl').forEach(b => b.disabled = !inTable);
+}
+
+/* ---------- Popovers ---------- */
+const PALETTE = ['#000000','#434343','#666666','#999999','#b7b7b7','#d9d9d9','#efefef','#ffffff',
+  '#980000','#c0392b','#e67e22','#f1c40f','#27ae60','#16a085','#2c4ea3','#8e44ad',
+  '#e6b8af','#f4cccc','#fce5cd','#fff2cc','#d9ead3','#d0e0e3','#c9daf8','#d9d2e9',
+  '#85200c','#990000','#b45f06','#bf9000','#38761d','#134f5c','#1c4587','#351c75'];
+const HILITE = ['#ffe066','#ffd8a8','#ffc9c9','#d3f9d8','#c5f6fa','#d0ebff','#e5dbff','#f1f3f5'];
+const SYMBOLS = '© ® ™ § ¶ • – — … ° ± × ÷ ≈ ≠ ≤ ≥ ½ ¼ ¾ € £ ¥ ← → ↑ ↓ ✓ ✗ ★ ∞ √ π α β'.split(' ');
+let popFor = null;
+function openPop(kind, anchor){
+  if (popFor === anchor) { closePop(); return; }
+  let html = '';
+  if (kind === 'fore') html = `<h4>Warna teks</h4><div class="swatches">${PALETTE.map(c => `<button class="swatch" style="background:${c}" data-color="${c}" aria-label="${c}"></button>`).join('')}</div>`;
+  if (kind === 'hilite') html = `<h4>Warna sorot</h4><div class="swatches">${HILITE.map(c => `<button class="swatch" style="background:${c}" data-color="${c}" aria-label="${c}"></button>`).join('')}<button class="swatch none" data-color="transparent" aria-label="Tanpa sorot" title="Tanpa sorot"></button></div>`;
+  if (kind === 'table') html = `<h4>Sisipkan tabel</h4><div class="grid" id="tgrid">${Array.from({length:80},(_,i)=>`<span data-r="${Math.floor(i/10)+1}" data-c="${i%10+1}"></span>`).join('')}</div><div class="gridlabel" id="tlabel">Pilih ukuran tabel</div>`;
+  if (kind === 'symbol') html = `<h4>Simbol</h4><div class="sym">${SYMBOLS.map(s => `<button data-sym="${s}">${s}</button>`).join('')}</div>`;
+  if (kind === 'stats') { const st = stats(); html = `<h4>Statistik dokumen</h4><dl class="stats"><dt>Halaman</dt><dd>${st.pages}</dd><dt>Kata</dt><dd>${st.words.toLocaleString('id-ID')}</dd><dt>Karakter (dengan spasi)</dt><dd>${st.chars.toLocaleString('id-ID')}</dd><dt>Karakter (tanpa spasi)</dt><dd>${st.charsNo.toLocaleString('id-ID')}</dd><dt>Paragraf</dt><dd>${st.paras}</dd><dt>Perkiraan waktu baca</dt><dd>${Math.max(1, Math.round(st.words/200))} menit</dd></dl>`; }
+  if (kind === 'link') { const s = savedRange ? savedRange.toString() : ''; html = `<h4>Sisipkan tautan</h4><label class="field"><span>Alamat (URL)</span><input id="lnkUrl" placeholder="https://contoh.co.id"></label><label class="field"><span>Teks yang ditampilkan</span><input id="lnkText" value="${s.replace(/"/g,'&quot;')}"></label><div style="display:flex;gap:8px;justify-content:flex-end"><button class="pill" id="lnkRemove">Hapus tautan</button><button class="pill primary" id="lnkOk">Sisipkan</button></div>`; }
+  if (kind === 'filemenu') html = '';
+  pop.innerHTML = html; pop.hidden = false; popFor = anchor;
+  const r = anchor.getBoundingClientRect(); const pw = pop.offsetWidth;
+  pop.style.left = Math.max(16, Math.min(r.left, innerWidth - pw - 16)) + 'px'; pop.style.top = (r.bottom + 6) + 'px';
+  if (kind === 'fore' || kind === 'hilite') pop.querySelectorAll('[data-color]').forEach(b => { b.addEventListener('mousedown', e => e.preventDefault()); b.onclick = () => {
+    const c = b.dataset.color; if (kind === 'fore') { $('#foreBar').style.background = c; exec('foreColor', c); } else { $('#hiliteBar').style.background = c === 'transparent' ? 'var(--line)' : c; exec('hiliteColor', c); } closePop(); }; });
+  if (kind === 'table') { const g = $('#tgrid'); g.addEventListener('mouseover', e => { const t = e.target.dataset; if (!t.r) return; g.querySelectorAll('span').forEach(s => s.classList.toggle('on', +s.dataset.r <= +t.r && +s.dataset.c <= +t.c)); $('#tlabel').textContent = `${t.c} kolom × ${t.r} baris`; });
+    g.addEventListener('mousedown', e => e.preventDefault()); g.addEventListener('click', e => { const t = e.target.dataset; if (t.r) { insertTable(+t.r, +t.c); closePop(); } }); }
+  if (kind === 'symbol') pop.querySelectorAll('[data-sym]').forEach(b => { b.addEventListener('mousedown', e => e.preventDefault()); b.onclick = () => exec('insertText', b.dataset.sym); });
+  if (kind === 'link') { const u = $('#lnkUrl'); const a = anchorEl() && anchorEl().closest('a'); if (a) { u.value = a.getAttribute('href'); $('#lnkText').value = a.textContent; } u.focus();
+    const go = () => { let url = u.value.trim(); if (!url) { u.focus(); return; } if (!/^(https?:|mailto:|#)/i.test(url)) url = 'https://' + url; const txt = $('#lnkText').value.trim() || url;
+      const a2 = anchorEl() && anchorEl().closest('a'); if (a2) { a2.href = url; a2.textContent = txt; dirty(); } else exec('insertHTML', `<a href="${url.replace(/"/g,'&quot;')}">${esc(txt)}</a>`); closePop(); };
+    $('#lnkOk').onclick = go; u.onkeydown = $('#lnkText').onkeydown = e => { if (e.key === 'Enter') { e.preventDefault(); go(); } };
+    $('#lnkRemove').onclick = () => { const a2 = anchorEl() && anchorEl().closest('a'); if (a2) { const r2 = document.createRange(); r2.selectNodeContents(a2); savedRange = r2; } exec('unlink'); closePop(); }; }
+}
+function closePop(){ pop.hidden = true; popFor = null; }
+$$('[data-pop]').forEach(b => b.addEventListener('click', () => openPop(b.dataset.pop, b)));
+document.addEventListener('mousedown', e => { if (!pop.hidden && !pop.contains(e.target) && !e.target.closest('[data-pop]')) closePop(); });
+const esc = s => s.replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+/* ---------- Table ---------- */
+function insertTable(r, c){
+  const head = `<tr>${Array.from({length:c},(_,i)=>`<th>Kolom ${i+1}</th>`).join('')}</tr>`;
+  const body = Array.from({length:Math.max(0,r-1)},()=>`<tr>${'<td><br></td>'.repeat(c)}</tr>`).join('');
+  exec('insertHTML', `<table><tbody>${head}${body}</tbody></table><p><br></p>`);
+}
+function cellCtx(){ const n = anchorEl(); const cell = n && n.closest('td,th'); if (!cell) return null; const row = cell.parentElement; return { cell, row, table: cell.closest('table'), ci: [...row.children].indexOf(cell) }; }
+function tableAct(a){
+  const c = cellCtx(); if (!c) return;
+  if (a === 'row-above' || a === 'row-below') { const nr = document.createElement('tr'); [...c.row.children].forEach(() => { const td = document.createElement('td'); td.innerHTML = '<br>'; nr.appendChild(td); }); c.row.parentElement.insertBefore(nr, a === 'row-above' ? c.row : c.row.nextSibling); }
+  if (a === 'col-left' || a === 'col-right') c.table.querySelectorAll('tr').forEach(tr => { const ref = tr.children[c.ci]; const nc = document.createElement(ref && ref.tagName === 'TH' ? 'th' : 'td'); nc.innerHTML = '<br>'; tr.insertBefore(nc, a === 'col-left' ? ref : ref ? ref.nextSibling : null); });
+  if (a === 'del-row') { c.row.remove(); if (!c.table.querySelector('tr')) c.table.remove(); }
+  if (a === 'del-col') { c.table.querySelectorAll('tr').forEach(tr => tr.children[c.ci] && tr.children[c.ci].remove()); if (!c.table.querySelector('td,th')) c.table.remove(); }
+  if (a === 'del-table') c.table.remove();
+  dirty(); refreshState();
+}
+
+/* ---------- Images ---------- */
+$('#imgFile').addEventListener('change', e => { const f = e.target.files[0]; if (!f) return; const rd = new FileReader();
+  rd.onload = () => exec('insertHTML', `<img src="${rd.result}" alt="${esc(f.name)}" style="width:60%;display:block;margin:6pt auto;">`); rd.readAsDataURL(f); e.target.value = ''; });
+let pickedImg = null; const imgbar = $('#imgbar');
+function pickImg(img){ if (pickedImg) pickedImg.classList.remove('picked'); pickedImg = img; if (!img) { imgbar.hidden = true; return; } img.classList.add('picked'); imgbar.hidden = false; placeImgbar(); }
+function placeImgbar(){ if (!pickedImg) return; const r = pickedImg.getBoundingClientRect(); imgbar.style.left = Math.max(16, Math.min(r.left, innerWidth - imgbar.offsetWidth - 16)) + 'px'; imgbar.style.top = Math.max(8, r.top - 40) + 'px'; }
+page.addEventListener('click', e => { if (e.target.tagName === 'IMG') pickImg(e.target); else pickImg(null);
+  if (e.target.closest('a') && (e.ctrlKey || e.metaKey)) { e.preventDefault(); const a = document.createElement('a'); a.href = e.target.closest('a').href; a.target = '_blank'; a.rel = 'noopener'; a.click(); } });
+ws.addEventListener('scroll', placeImgbar);
+imgbar.addEventListener('click', e => { const v = e.target.dataset.img; if (!v || !pickedImg) return; const s = pickedImg.style;
+  if (/^\d+$/.test(v)) s.width = v + '%';
+  if (v === 'left') { s.display = 'block'; s.marginLeft = '0'; s.marginRight = 'auto'; }
+  if (v === 'center') { s.display = 'block'; s.marginLeft = 'auto'; s.marginRight = 'auto'; }
+  if (v === 'right') { s.display = 'block'; s.marginLeft = 'auto'; s.marginRight = '0'; }
+  if (v === 'del') { pickedImg.remove(); pickImg(null); }
+  dirty(); placeImgbar(); });
+
+/* ---------- Format painter ---------- */
+let painter = null;
+function capturePainter(){ const n = anchorEl(); if (!n) return; const cs = getComputedStyle(n);
+  painter = { fontFamily: cs.fontFamily, fontSize: cs.fontSize, fontWeight: cs.fontWeight, fontStyle: cs.fontStyle, textDecoration: cs.textDecorationLine, color: cs.color };
+  $('#painterBtn').classList.add('on'); toast('Format disalin. Pilih teks tujuan.'); }
+page.addEventListener('mouseup', () => { if (!painter) return; setTimeout(() => {
+  const s = getSelection(); if (!s.rangeCount || s.isCollapsed) return; const r = s.getRangeAt(0);
+  const sp = document.createElement('span'); Object.assign(sp.style, { fontFamily: painter.fontFamily, fontSize: painter.fontSize, fontWeight: painter.fontWeight, fontStyle: painter.fontStyle, textDecoration: painter.textDecoration, color: painter.color });
+  sp.appendChild(r.extractContents()); r.insertNode(sp); painter = null; $('#painterBtn').classList.remove('on'); dirty(); }, 0); });
+
+/* ---------- Find & replace ---------- */
+let hits = [], hitIx = -1;
+function textNodes(){ const w = document.createTreeWalker(page, NodeFilter.SHOW_TEXT); const a = []; let n; while ((n = w.nextNode())) a.push(n); return a; }
+function runFind(){
+  const q = $('#findIn').value; hits = []; hitIx = -1;
+  if (!q) { $('#findCount').textContent = ''; return; }
+  const cs = $('#caseChk').checked, qq = cs ? q : q.toLowerCase();
+  textNodes().forEach(n => { const t = cs ? n.data : n.data.toLowerCase(); let i = t.indexOf(qq); while (i > -1) { hits.push({ n, i, len: q.length }); i = t.indexOf(qq, i + qq.length); } });
+  $('#findCount').textContent = hits.length ? `${hits.length} hasil` : 'Tidak ditemukan';
+}
+function gotoHit(d){
+  runFind(); if (!hits.length) return;
+  hitIx = (hitIx + d + hits.length) % hits.length;
+  if (d > 0 && savedRange) { const after = hits.findIndex(h => { const r = document.createRange(); r.setStart(h.n, h.i); return r.compareBoundaryPoints(Range.START_TO_END, savedRange) > 0; }); hitIx = after === -1 ? 0 : after; }
+  if (d < 0 && savedRange) { let bi = -1; hits.forEach((h, k) => { const r = document.createRange(); r.setStart(h.n, h.i); if (r.compareBoundaryPoints(Range.START_TO_START, savedRange) < 0) bi = k; }); hitIx = bi === -1 ? hits.length - 1 : bi; }
+  const h = hits[hitIx]; const r = document.createRange(); r.setStart(h.n, h.i); r.setEnd(h.n, h.i + h.len);
+  const s = getSelection(); s.removeAllRanges(); s.addRange(r); savedRange = r.cloneRange();
+  const rr = r.getBoundingClientRect(), wr = ws.getBoundingClientRect(); if (rr.top < wr.top + 40 || rr.bottom > wr.bottom - 40) ws.scrollTop += rr.top - wr.top - wr.height / 3;
+  $('#findCount').textContent = `${hitIx + 1} dari ${hits.length}`;
+}
+function replaceOne(){ const q = $('#findIn').value; if (!q) return; const sel = savedRange ? savedRange.toString() : '';
+  const same = $('#caseChk').checked ? sel === q : sel.toLowerCase() === q.toLowerCase();
+  if (same) { restore(); document.execCommand('insertText', false, $('#replIn').value); dirty(); } gotoHit(1); }
+function replaceAll(){ const q = $('#findIn').value; if (!q) return; runFind(); const n = hits.length; if (!n) return; const rep = $('#replIn').value;
+  for (let k = hits.length - 1; k >= 0; k--) { const h = hits[k]; h.n.replaceData(h.i, h.len, rep); }
+  dirty(); runFind(); toast(`${n} teks diganti`); }
+function openFind(){ const fb = $('#findbar'); fb.hidden = false; const s = savedRange ? savedRange.toString() : ''; if (s && s.length < 60) $('#findIn').value = s; $('#findIn').focus(); $('#findIn').select(); runFind(); }
+$('#findIn').addEventListener('input', runFind); $('#caseChk').addEventListener('change', runFind);
+$('#findIn').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); gotoHit(e.shiftKey ? -1 : 1); } if (e.key === 'Escape') $('#findbar').hidden = true; });
+$('#replIn').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); replaceOne(); } });
+
+/* ---------- Stats ---------- */
+function stats(){
+  const t = page.innerText || ''; const words = (t.match(/[\p{L}\p{N}][\p{L}\p{N}'’\-]*/gu) || []).length;
+  const pages = pageCount();
+  return { words, chars: t.replace(/\n/g,'').length, charsNo: t.replace(/\s/g,'').length, paras: page.querySelectorAll('p,h1,h2,h3,li,blockquote,pre').length, pages };
+}
+const mmToPx = mm => mm * 96 / 25.4;
+function pageH(){ let [w,h] = layout.paper.split('x').map(Number); if (layout.orient === 'l') [w,h] = [h,w]; return mmToPx(h); }
+function pageCount(){ return Math.max(1, Math.ceil((page.scrollHeight - 2) / pageH())); }
+let statT;
+function updateStats(){ clearTimeout(statT); statT = setTimeout(() => {
+  const st = stats(); $('#stWords').textContent = `${st.words.toLocaleString('id-ID')} kata`;
+  let cur = 1; if (savedRange) { const rr = savedRange.getBoundingClientRect(); const pr = page.getBoundingClientRect(); if (rr.height || rr.top) cur = Math.min(st.pages, Math.max(1, Math.ceil(((rr.top - pr.top) / zoom + 1) / pageH()))); }
+  $('#stPage').textContent = `Halaman ${cur} dari ${st.pages}`;
+}, 120); }
+document.addEventListener('selectionchange', updateStats);
+
+/* ---------- Zoom ---------- */
+let zoom = 1;
+function setZoom(pct){ pct = Math.min(200, Math.max(40, Math.round(pct))); zoom = pct / 100; zoomer.style.zoom = zoom; $('#zoomIn').value = pct; $('#zoomOut').textContent = pct + '%'; placeImgbar(); }
+$('#zoomIn').addEventListener('input', e => setZoom(+e.target.value));
+function fitWidth(){ const avail = ws.clientWidth - 32; const w = page.offsetWidth; if (w > avail) setZoom(Math.floor(avail / w * 100)); }
+fitWidth();
+
+/* ---------- Files: open & save ---------- */
+function loadScript(src){ return new Promise((res, rej) => { if (document.querySelector(`script[src="${src}"]`)) return res(); const s = document.createElement('script'); s.src = src; s.onload = res; s.onerror = () => rej(new Error('load')); document.head.appendChild(s); }); }
+$('#docFile').addEventListener('change', e => { const f = e.target.files[0]; e.target.value = ''; if (f) openFileObj(f, desk && desk.pathOf(f)); });
+async function openFileObj(f, filePath){
+  if (!f) return;
+  const ext = f.name.split('.').pop().toLowerCase(); const base = f.name.replace(/\.[^.]+$/, '');
+  try {
+    if (ext === 'docx') { toast('Membuka dokumen Word…'); 
+      const res = await window.mammoth.convertToHtml({ arrayBuffer: await f.arrayBuffer() }); setDoc(res.value, base); }
+    else if (ext === 'html' || ext === 'htm') { const doc = new DOMParser().parseFromString(await f.text(), 'text/html'); doc.querySelectorAll('script,style,iframe,object,embed').forEach(n => n.remove());
+      doc.querySelectorAll('*').forEach(n => [...n.attributes].forEach(a => { if (/^on/i.test(a.name)) n.removeAttribute(a.name); })); setDoc(doc.body.innerHTML, base); }
+    else { const txt = await f.text(); setDoc(txt.split(/\n{2,}/).map(p => `<p>${esc(p).replace(/\n/g,'<br>')}</p>`).join(''), base); }
+    currentPath = filePath || null; currentKind = ext === 'docx' ? 'docx' : (ext === 'html' || ext === 'htm') ? 'html' : 'txt'; updateWinTitle();
+    toast(`"${f.name}" dibuka`);
+  } catch { toast('File tidak bisa dibuka. Coba simpan ulang sebagai .docx atau .txt.'); }
+}
+function setDoc(html, title){ page.innerHTML = html || '<p><br></p>'; if (title != null) $('#docTitle').value = title; savedRange = null; ws.scrollTop = 0; saveNow(); updateStats(); }
+
+function downloadBlob(data, name){
+  const blob = data instanceof Blob ? data : new Blob([data], { type: name.endsWith('.html') ? 'text/html;charset=utf-8' : 'text/plain;charset=utf-8' });
+  const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = name;
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 4000);
+}
+const fname = ext => (($('#docTitle').value || 'Dokumen').replace(/[\\/:*?"<>|]+/g, ' ').trim() || 'Dokumen') + '.' + ext;
+function exportHTML(){
+  const [mt, mx] = layout.margin.split(',');
+  return `<!doctype html><html lang="id"><head><meta charset="utf-8"><title>${esc($('#docTitle').value)}</title><style>
+body{font-family:"Source Serif 4",Georgia,"Times New Roman",serif;font-size:12pt;line-height:${layout.lh};color:#1c1e23;max-width:${layout.paper.split('x')[0]}mm;margin:${mt}mm auto;padding:0 ${mx}mm}
+h1{font-size:20pt;color:#1d3470}h2{font-size:15pt;color:#1d3470}h3{font-size:12.5pt}
+table{border-collapse:collapse;width:100%}td,th{border:1px solid #9aa3b2;padding:4pt 6pt;vertical-align:top}th{background:#eef1f7;text-align:left}
+blockquote{border-left:3px solid #9fb0d6;margin:8pt 0;padding-left:14pt;font-style:italic}img{max-width:100%}p{margin:0 0 8pt}
+</style></head><body>${cleanHTML()}</body></html>`;
+}
+function cleanHTML(){ const c = page.cloneNode(true); c.querySelectorAll('.picked').forEach(n => n.classList.remove('picked')); c.querySelectorAll('mark.hit').forEach(m => m.replaceWith(...m.childNodes)); return c.innerHTML; }
+async function saveAs(kind, overwrite){
+  try {
+    let data, name;
+    if (kind === 'txt') { data = page.innerText; name = fname('txt'); }
+    if (kind === 'html') { data = exportHTML(); name = fname('html'); }
+    if (kind === 'docx') { toast('Menyiapkan file Word…'); 
+      const [mt, mx] = layout.margin.split(',').map(v => Math.round(parseFloat(v) * 56.7));
+      data = window.htmlDocx.asBlob(exportHTML(), { orientation: layout.orient === 'l' ? 'landscape' : 'portrait', margins: { top: mt, bottom: mt, left: mx, right: mx } }); name = fname('docx'); }
+    if (desk) {
+      const bytes = data instanceof Blob ? new Uint8Array(await data.arrayBuffer()) : data;
+      const res = await desk.save({ data: bytes, name, kind, path: overwrite ? currentPath : null });
+      if (res) { currentPath = res.path; currentKind = kind; $('#docTitle').value = res.name.replace(/\.[^.]+$/, ''); saveNow(); updateWinTitle(); toast(`Tersimpan: ${res.name}`); }
+    } else { downloadBlob(data, name); toast(`${name} disimpan ke folder Unduhan`); }
+  } catch (err) {
+    toast('Gagal menyimpan file. Pastikan folder tujuan bisa ditulisi, lalu coba lagi.');
+  }
+}
+async function copy(text, okMsg){ try { await navigator.clipboard.writeText(text); toast(okMsg); }
+  catch { const r = document.createRange(); r.selectNodeContents(page); const s = getSelection(); s.removeAllRanges(); s.addRange(r); toast('Isi dokumen sudah dipilih. Tekan Ctrl+C untuk menyalin.'); } }
+
+/* ---------- Confirm ---------- */
+function confirmNew(){ $('#confirm').hidden = false; $('#cfYes').focus(); }
+$('#cfNo').onclick = () => $('#confirm').hidden = true;
+$('#cfYes').onclick = () => { $('#confirm').hidden = true; setDoc('<p><br></p>', 'Dokumen tanpa judul'); currentPath = null; currentKind = 'docx'; updateWinTitle(); page.focus(); toast('Dokumen baru siap'); };
+
+/* ---------- Focus mode ---------- */
+function toggleFocus(){ focusMode = !focusMode; $('#ribbon').classList.toggle('collapsed', focusMode); if (focusMode) toast('Mode fokus aktif. Klik tab mana pun untuk keluar.'); }
+
+/* ---------- Action dispatcher ---------- */
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-act]'); if (!b || b.disabled) return; const a = b.dataset.act;
+  ({
+    new: confirmNew, open: openDialog, save: () => saveCurrent(false), pdf: exportPdf,
+    'save-docx': () => saveAs('docx'), 'save-html': () => saveAs('html'), 'save-txt': () => saveAs('txt'),
+    'copy-text': () => copy(page.innerText, 'Teks disalin'), 'copy-html': () => copy(cleanHTML(), 'HTML disalin'),
+    clear: () => { exec('removeFormat'); exec('formatBlock', '<p>'); }, painter: () => { if (painter) { painter = null; b.classList.remove('on'); } else capturePainter(); },
+    grow: () => stepSize(1), shrink: () => stepSize(-1), find: openFind,
+    'find-next': () => gotoHit(1), 'find-prev': () => gotoHit(-1), 'replace-one': replaceOne, 'replace-all': replaceAll, 'find-close': () => $('#findbar').hidden = true,
+    image: () => { restore(); $('#imgFile').click(); }, hr: () => exec('insertHTML', '<hr><p><br></p>'), date: () => exec('insertText', tgl(new Date())),
+    'row-above': () => tableAct(a), 'row-below': () => tableAct(a), 'col-left': () => tableAct(a), 'col-right': () => tableAct(a), 'del-row': () => tableAct(a), 'del-col': () => tableAct(a), 'del-table': () => tableAct(a),
+    spell: () => { const on = page.spellcheck = !page.spellcheck; b.classList.toggle('on', on); page.blur(); restore(); toast(on ? 'Pemeriksa ejaan aktif' : 'Pemeriksa ejaan nonaktif'); },
+    focus: toggleFocus, print: doPrint,
+    'zoom-in': () => setZoom(zoom * 100 + 10), 'zoom-out': () => setZoom(zoom * 100 - 10),
+  }[a] || (() => {}))();
+});
+
+/* ---------- Keyboard ---------- */
+document.addEventListener('keydown', e => {
+  const mod = e.ctrlKey || e.metaKey;
+  if (mod && e.key.toLowerCase() === 's') { e.preventDefault(); saveCurrent(e.shiftKey); }
+  else if (mod && e.key.toLowerCase() === 'p') { e.preventDefault(); doPrint(); }
+  else if (mod && e.key.toLowerCase() === 'f') { e.preventDefault(); openFind(); }
+  else if (mod && e.key.toLowerCase() === 'h') { e.preventDefault(); openFind(); $('#replIn').focus(); }
+  else if (mod && e.key.toLowerCase() === 'k' && page.contains(document.activeElement)) { e.preventDefault(); $('[data-tab="sisipkan"]').click(); openPop('link', $('[data-pop="link"]')); }
+  else if (mod && (e.key === '+' || e.key === '=')) { e.preventDefault(); setZoom(zoom * 100 + 10); }
+  else if (mod && e.key === '-') { e.preventDefault(); setZoom(zoom * 100 - 10); }
+  else if (e.key === 'Escape') { closePop(); pickImg(null); }
+});
+page.addEventListener('keydown', e => {
+  if (e.key === 'Tab') { e.preventDefault(); const n = anchorEl();
+    if (n && n.closest('li')) exec(e.shiftKey ? 'outdent' : 'indent');
+    else if (n && n.closest('td,th')) { const cells = [...n.closest('table').querySelectorAll('td,th')]; const i = cells.indexOf(n.closest('td,th')); const t = cells[i + (e.shiftKey ? -1 : 1)];
+      if (t) { const r = document.createRange(); r.selectNodeContents(t); r.collapse(false); const s = getSelection(); s.removeAllRanges(); s.addRange(r); } else if (!e.shiftKey) tableAct('row-below'); }
+    else exec('insertHTML', '&emsp;&emsp;'); }
+  if ((e.key === 'Delete' || e.key === 'Backspace') && pickedImg) { e.preventDefault(); pickedImg.remove(); pickImg(null); dirty(); }
+});
+
+/* ---------- Misc ---------- */
+function doPrint(toPrinter){
+  closePop(); pickImg(null); let [w,h] = layout.paper.split('x').map(Number); if (layout.orient === 'l') [w,h] = [h,w];
+  const [mt, mx] = layout.margin.split(',');
+  let st = document.getElementById('printPage'); if (!st) { st = document.createElement('style'); st.id = 'printPage'; document.head.appendChild(st); }
+  st.textContent = `@page{size:${w}mm ${h}mm;margin:${mt}mm ${mx}mm}`;
+  if (toPrinter !== false) window.print();
+}
+let toastT;
+function toast(msg){ const t = $('#toast'); t.textContent = msg; t.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => t.hidden = true, 2600); }
+addEventListener('resize', () => { closePop(); placeImgbar(); });
+/* ---------- Desktop (Electron) ---------- */
+const desk = window.lembar || null;
+let currentPath = null, currentKind = 'docx';
+function updateWinTitle(){ if (desk) desk.setTitle(($('#docTitle').value || 'Dokumen tanpa judul') + ' — Lembar'); }
+async function openDialog(){
+  if (!desk) { $('#docFile').click(); return; }
+  try { const r = await desk.open(); if (r) openFileObj(new File([r.data], r.name), r.path); } catch { toast('File tidak bisa dibuka.'); }
+}
+function saveCurrent(asNew){
+  if (!desk) { saveNow(); toast('Draf tersimpan otomatis'); return; }
+  saveAs(currentKind, !asNew && !!currentPath);
+}
+async function exportPdf(){
+  if (!desk) { doPrint(); return; }
+  doPrint(false);
+  try { const r = await desk.pdf({ name: fname('pdf') }); if (r) toast(`PDF tersimpan: ${r.name}`); }
+  catch { toast('Gagal membuat PDF. Coba lagi.'); }
+}
+// Seret file dokumen ke jendela untuk membukanya; seret gambar untuk menyisipkannya
+document.addEventListener('dragover', e => { if (e.dataTransfer && [...e.dataTransfer.types].includes('Files')) e.preventDefault(); });
+document.addEventListener('drop', e => {
+  const f = e.dataTransfer && e.dataTransfer.files[0]; if (!f) return;
+  e.preventDefault();
+  if (/\.(docx|html?|txt|md)$/i.test(f.name)) openFileObj(f, desk && desk.pathOf(f));
+  else if (f.type.startsWith('image/')) { const rd = new FileReader(); rd.onload = () => exec('insertHTML', `<img src="${rd.result}" alt="${esc(f.name)}" style="width:60%;display:block;margin:6pt auto;">`); rd.readAsDataURL(f); }
+});
+if (desk) {
+  $('#docTitle').addEventListener('input', updateWinTitle);
+  updateWinTitle();
+  desk.onMenu(cmd => ({ new: confirmNew, open: openDialog, save: () => saveCurrent(false), saveAs: () => saveCurrent(true), print: () => doPrint(), pdf: exportPdf, find: openFind }[cmd] || (() => {}))());
+  desk.onOpenFile(r => openFileObj(new File([r.data], r.name), r.path));
+  desk.ready();
+} else {
+  $$('[data-act="save"],[data-act="pdf"]').forEach(b => b.hidden = true);
+}
+updateStats();
+})();
+</script>
+
+</body>
+</html>
